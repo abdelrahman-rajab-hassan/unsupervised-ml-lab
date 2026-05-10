@@ -8,7 +8,7 @@
 
 | 🗃️ Project Name | 📝 Description | 🔧 Technique Focused On |
 |---|---|---|
-| [Bike Share Demand Prediction](./bike-share-demand-prediction) | Predicting hourly bike rental demand using historical data from a bike-sharing service | Feature Engineering & Random Forest Regression |
+| [Bike Share Demand Prediction](./bike-share-demand-prediction) | Predicting hourly bike rental demand using historical data from a bike-sharing service | **Feature Engineering & Random Forest Regression** |
 
 ---
 
