@@ -27,10 +27,6 @@ Before clustering, we needed to decide: **how many groups should there be?** We 
 
 ## The Two Customer Groups
 
-![Cluster Plot — Age vs Years Employed]()
-
-The chart above shows customers plotted by **Age** vs. **Years Employed** — two of the most separating features. The two clusters are visually distinct with little overlap.
-
 | | Cluster 0 — The Established Borrowers | Cluster 1 — The Young Starters |
 |---|---|---|
 | **Age** | 35–60 years old | 20–35 years old |
@@ -45,7 +41,7 @@ The chart above shows customers plotted by **Age** vs. **Years Employed** — tw
 
 ## Who Actually Defaults More?
 
-![Default Status by Cluster](<img width="571" height="455" alt="output" src="https://github.com/user-attachments/assets/178ca2a7-940c-4dd4-8b27-ed847b09c149" />)
+<img width="571" height="455" alt="output" src="https://github.com/user-attachments/assets/d0e3725e-5cde-46fa-8a0d-f87936b0dd8c" />
 
 Despite earning significantly more, **Cluster 0 defaults at a higher rate (~30%)** than Cluster 1 (~25%). The reason is straightforward — their aggressive borrowing stretches their finances, making them riskier than their income alone would suggest.
 
