@@ -16,8 +16,8 @@ To do this, we used a machine learning technique called **KMeans Clustering** â€
 
 Before clustering, we needed to decide: **how many groups should there be?** We used two standard tests for this.
 
-![Silhouette Score & Inertia](<img width="1189" height="490" alt="silhouette_inertia_score" src="https://github.com/user-attachments/assets/ca78325b-29e1-48a8-94d8-075eccae2a53" />
-)
+<img width="1189" height="490" alt="silhouette_inertia_score" src="https://github.com/user-attachments/assets/49c44030-e9d6-4978-8d24-3116f38d3780" />
+
 
 - The **Silhouette Score** (left) peaks at **K=2**, meaning two groups fit the data best.
 - The **Elbow Plot** (right) shows no sharp bend, but combined with the silhouette result, **K=2** is the clear choice.
