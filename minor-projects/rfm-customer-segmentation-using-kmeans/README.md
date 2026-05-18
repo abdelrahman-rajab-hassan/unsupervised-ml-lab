@@ -131,7 +131,7 @@ The boxplots above show how Recency, Frequency, and Monetary Value are distribut
 
 ```
 📦 project
- ┣ 📓 KMeans_Exercise.ipynb   ← the full analysis notebook
+ ┣ 📓 rfm-customer-seg-using-kmeans.ipynb   ← the full analysis notebook
  ┣ 📄 rfm.csv                 ← customer purchase data
  ┗ 📄 README.md               ← you are here
 ```
