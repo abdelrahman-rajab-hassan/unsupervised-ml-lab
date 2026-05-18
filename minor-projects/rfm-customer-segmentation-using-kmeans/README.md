@@ -51,8 +51,9 @@ Both methods pointed to **K = 4** as the sweet spot:
 
 ## 👥 The 4 Customer Segments
 
-<img width="490" height="490" alt="outpdut" src="https://github.com/user-attachments/assets/370d805e-1527-4e53-86a7-c4016ab36698" />
-
+<p align="center">
+  <img width="490" height="490" alt="outpdut" src="https://github.com/user-attachments/assets/370d805e-1527-4e53-86a7-c4016ab36698" />
+</p>
 
 | Segment | % of Customers | Last Purchase | Visit Freq. | Avg. Spend |
 |---------|---------------|--------------|------------|------------|
