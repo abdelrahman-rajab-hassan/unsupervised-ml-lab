@@ -1,6 +1,6 @@
 # Adult Income Prediction
 
-## What This Project Does (Non-Technical)
+## What This Project Does 
 
 This project answers a simple question: **can we predict whether a person earns more or less than $50,000 per year?**
 
@@ -118,19 +118,6 @@ Permutation importance was computed on the Random Forest test set (10 repeats). 
 | `imbalanced-learn` | Pipeline support for imbalanced datasets |
 | `my_utils` (local) | Custom profiling and plotting utilities |
 
----
-
-## How to Run
-
-1. Make sure `adult-income.csv` is in the same directory as the notebook.
-2. Ensure `my_utils.py` is one directory level up (`../my_utils.py`).
-3. Install dependencies:
-
-```bash
-pip install numpy pandas seaborn matplotlib scikit-learn imbalanced-learn
-```
-
-4. Open and run `adult-income.ipynb` top to bottom.
 
 ---
 
