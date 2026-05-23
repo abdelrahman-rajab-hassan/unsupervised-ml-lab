@@ -57,17 +57,31 @@ We profiled every column before touching any model — checking distributions, v
 | Duplicate rows | **52 found and removed** |
 | Hidden missing values | `?` placeholder found in `workclass`, `occupation`, and `native-country` |
 
-We then plotted univariate distributions for every column to understand the shape of the data.
+<div align="center">
+  <img width="790" height="490" alt="income" src="https://github.com/user-attachments/assets/63664d07-b32d-44cd-b2a2-baf241197103" />
+  <br><em>Income distribution — target class imbalance (~76% ≤50K)</em>
+</div>
 
-<img width="790" height="490" alt="income" src="https://github.com/user-attachments/assets/63664d07-b32d-44cd-b2a2-baf241197103" />
+<br>
 
+<div align="center">
+  <img width="790" height="490" alt="occupation" src="https://github.com/user-attachments/assets/6c224986-f5a5-474d-9305-a0c34dc09464" />
+  <br><em>Occupation — Prof-specialty and Craft-repair dominate</em>
+</div>
 
-<img width="790" height="490" alt="occupation" src="https://github.com/user-attachments/assets/6c224986-f5a5-474d-9305-a0c34dc09464" />
+<br>
 
-<img width="790" height="489" alt="education" src="https://github.com/user-attachments/assets/dfff9620-a129-4849-8fe8-9773dbe0b1ed" />
+<div align="center">
+  <img width="790" height="489" alt="education" src="https://github.com/user-attachments/assets/dfff9620-a129-4849-8fe8-9773dbe0b1ed" />
+  <br><em>Education — HS-grad is the most common level</em>
+</div>
 
-<img width="790" height="490" alt="age" src="https://github.com/user-attachments/assets/d4204442-deba-4136-b939-71bc9630af05" />
+<br>
 
+<div align="center">
+  <img width="790" height="490" alt="age" src="https://github.com/user-attachments/assets/d4204442-deba-4136-b939-71bc9630af05" />
+  <br><em>Age — right-skewed, peaking around 35–45</em>
+</div>
 
 ---
 
@@ -76,7 +90,7 @@ We then plotted univariate distributions for every column to understand the shap
 We split the data using a **stratified 75/25 train-test split** to preserve the class ratio, then built a `ColumnTransformer` pipeline:
 
 ```
-Numeric columns   → SimpleImputer (median strategy)
+Numeric columns    → SimpleImputer (median strategy)
 Categorical columns → SimpleImputer (most_frequent) → OrdinalEncoder
 ```
 
@@ -103,8 +117,12 @@ A **Random Forest Classifier** with default hyperparameters (`random_state=43`) 
 
 We used **permutation importance** (10 repeats on the test set) to rank which features most affected the model's accuracy when shuffled.
 
-<img width="790" height="590" alt="baseline_bar_for_feature_importance" src="https://github.com/user-attachments/assets/692e2a7d-fa0f-4f67-8aec-6fd1165c0f97" />
+<div align="center">
+  <img width="790" height="590" alt="baseline_bar_for_feature_importance" src="https://github.com/user-attachments/assets/692e2a7d-fa0f-4f67-8aec-6fd1165c0f97" />
+  <br><em>Top 10 features — Baseline Random Forest</em>
+</div>
 
+<br>
 
 **Why the top features make sense:**
 
@@ -123,12 +141,17 @@ We used **permutation importance** (10 repeats on the test set) to rank which fe
 
 We selected **`age`** and **`educational-num`** from the top 10 to visualize their relationship with the target — chosen because they are universally understood and tell the clearest story to a non-technical audience.
 
-<img width="590" height="390" alt="age_vs_income" src="https://github.com/user-attachments/assets/f940758c-3610-4734-8846-cf0cea7baaf5" />
+<div align="center">
+  <img width="590" height="390" alt="age_vs_income" src="https://github.com/user-attachments/assets/f940758c-3610-4734-8846-cf0cea7baaf5" />
+  <br><em>Age vs. Income</em>
+</div>
 
->
 > **Insight:** People in their **40s and 50s** are most likely to earn over $50K, with the proportion peaking around ages 45–55. Younger workers (under 30) and older retirees (over 65) are far less likely to fall in the higher bracket — confirming the classic mid-career earnings curve.
 
-<img width="590" height="390" alt="edu_vs_income" src="https://github.com/user-attachments/assets/7378ea48-ea98-4439-90a3-e3bae26e6120" />
+<div align="center">
+  <img width="590" height="390" alt="edu_vs_income" src="https://github.com/user-attachments/assets/7378ea48-ea98-4439-90a3-e3bae26e6120" />
+  <br><em>Education Level vs. Income</em>
+</div>
 
 > **Insight:** Below education level 12 (high school diploma), almost nobody earns over $50K. Starting at level 13 (Bachelor's degree), the proportion earning over $50K jumps sharply — reaching nearly **75% at the highest levels** (Master's and Doctorate). Education is one of the most consistent and explainable predictors in the dataset.
 
@@ -144,7 +167,7 @@ After the baseline, we tested whether adding **principal components** as new fea
 
 **Pipeline:**
 ```
-Numeric  → SimpleImputer (median) → StandardScaler
+Numeric     → SimpleImputer (median) → StandardScaler
 Categorical → SimpleImputer (most_frequent) → OrdinalEncoder
 → PCA (3 components)
 → Concatenate: original 13 features + 3 PCs = 16 features total
@@ -180,7 +203,6 @@ All 16 features exceeded the variance threshold — none were redundant enough t
 
 ### Step 8 — Final Model Comparison
 
-
 | Metric | Baseline | PCA + Original | After Feature Selection |
 |---|---|---|---|
 | Accuracy | **0.86** | 0.86 | 0.86 |
@@ -188,9 +210,11 @@ All 16 features exceeded the variance threshold — none were redundant enough t
 | Recall (`>50K`) | **0.63** | 0.62 | 0.62 |
 | F1-score (`>50K`) | **0.69** | 0.68 | 0.68 |
 
-<img width="790" height="590" alt="after_variance" src="https://github.com/user-attachments/assets/330addb8-814f-4423-b480-5506416f4ed9" />
+<div align="center">
+  <img width="790" height="590" alt="after_variance" src="https://github.com/user-attachments/assets/330addb8-814f-4423-b480-5506416f4ed9" />
+  <br><em>Top 10 features — Feature Selection Model</em>
+</div>
 
->
 > **Notable shift:** `age` jumped from #4 to #1, while `capital-gain` dropped from #1 to #3, and `relationship` fell from #2 to #10. Despite these rank changes, performance did not improve.
 
 ---
@@ -234,7 +258,7 @@ Variance Threshold confirmed there were no low-signal features to discard — ev
 
 ```
 adult-income/
-├── adult-income.csv              # Raw dataset (UCI Adult Income)
+├── adult-income.csv         # Raw dataset (UCI Adult Income)
 ├── adult-income.ipynb       # Full analysis notebook (Parts 1 & 2)
-└── README.md                     # This file
+└── README.md                # This file
 ```
