@@ -1,159 +1,256 @@
-# 💰 Adult Income Prediction
-
-> **Can we predict whether someone earns more or less than $50,000 a year?**
-> This project answers that question using real census data from 48,000+ people — and the answer turns out to hinge on just two things.
+# Adult Income Classification
+### Predicting whether a person earns more than $50K/year — with and without feature engineering
 
 ---
 
-## 🧩 The Problem
+## The Problem
 
-Not everyone fills out a salary field on a form. But census data captures dozens of signals — age, education, occupation, investment activity — that together paint a surprisingly clear picture of where someone lands on the income scale.
+Income inequality is one of the most studied socioeconomic issues, but predicting *individual* earning potential from demographic and employment data has concrete real-world value — from policy targeting to financial product design.
 
-Using a dataset of real individuals, we built a model that classifies people into two groups: **≤$50K** or **>$50K** per year, and then asked: *what actually drives that prediction?*
+This project uses the **Adult Income dataset** (1994 U.S. Census) to build a binary classifier that answers one question:
 
----
+> **Can we predict whether a person earns more than $50,000 per year — and does feature engineering help?**
 
-## 💡 The Short Answer
-
-Two features dominate everything else:
-
-- 📈 **Capital gains** — high earners had **6× more** investment activity than low earners
-- 🎓 **Education level** — high earners averaged **~2 more years** of schooling
-
-Both findings reflect how income actually works in the real world — which makes the model not just accurate, but *explainable*.
+The project is split into two parts:
+- **Part 1** — Build a baseline Random Forest with no feature engineering and identify what drives predictions
+- **Part 2** — Apply PCA and Variance Threshold feature selection, then compare all models
 
 ---
 
-## 📊 Key Findings at a Glance
+## Dataset at a Glance
 
-| Finding | Detail |
-|---|---|
-| 🥇 **Strongest predictor** | Capital gain — high earners had 6× more investment activity |
-| 🥈 **Second strongest** | Education level — high earners averaged ~2 more years |
-| ⚖️ **Class imbalance** | 76% earn ≤$50K vs. 24% earn >$50K (3.2:1 ratio) |
-| ❓ **Missing data** | ~5.7% of rows had unknown `workclass` and `occupation` simultaneously |
-| 🏆 **Best model** | Random Forest outperformed Logistic Regression |
+**48,842 rows | 15 columns | Binary classification target**
 
----
-
-## 📁 Dataset
-
-**Source:** UCI Adult Income (Census) Dataset
-**File:** `adult-income.csv`
-**Rows:** 48,842 (48,790 after removing 52 duplicates)
-**Target:** `income` — binary label (`<=50K` or `>50K`)
-
-| Column | Type | Description |
+| Feature | Type | Description |
 |---|---|---|
-| `age` | Numeric | Age of the individual |
-| `workclass` | Categorical | Employment type (Private, Gov, Self-emp, etc.) |
-| `fnlwgt` | Numeric | Census sampling weight — **dropped** (not predictive) |
-| `education` | Categorical | Highest education level — **dropped** (redundant with `educational-num`) |
-| `educational-num` | Numeric | Education encoded as an ordinal number |
-| `marital-status` | Categorical | Marital status (7 categories) |
-| `occupation` | Categorical | Job type (15 categories) |
-| `relationship` | Categorical | Family role (Husband, Wife, Own-child, etc.) |
+| `age` | Numeric | Person's age |
+| `workclass` | Categorical | Employment sector |
+| `fnlwgt` | Numeric | Census sampling weight — **dropped** |
+| `education` | Categorical | Highest level of education |
+| `educational-num` | Numeric | Education encoded as an ordinal number (1–16) |
+| `marital-status` | Categorical | Marital status |
+| `occupation` | Categorical | Type of job |
+| `relationship` | Categorical | Household role (Husband, Wife, Own-child, etc.) |
 | `race` | Categorical | Race |
 | `gender` | Categorical | Gender |
 | `capital-gain` | Numeric | Investment gains |
 | `capital-loss` | Numeric | Investment losses |
-| `hours-per-week` | Numeric | Weekly working hours |
-| `native-country` | Categorical | Country of origin (42 unique values) |
-| `income` | Target | `<=50K` or `>50K` |
+| `hours-per-week` | Numeric | Average weekly working hours |
+| `native-country` | Categorical | Country of origin |
+| `income` | **Target** | `<=50K` or `>50K` |
+
+<!-- IMAGE 1 -->
+> **Insert:** Screenshot of `df.head()` — shows the raw data structure with all 15 columns
 
 ---
 
-## ⚙️ How It Works (Simply Put)
-
-1. **Explore the data** — Profile every column, catch hidden missing values, and document the class imbalance.
-2. **Clean & engineer features** — Handle outliers, collapse sparse categories, and log-transform skewed columns.
-3. **Build preprocessing pipelines** — Separate pipelines for distance-based vs. tree-based models, all leak-proof.
-4. **Train two models** — Logistic Regression as a baseline, Random Forest as the main model.
-5. **Rank the predictors** — Use permutation importance to find out what the model actually learned.
+## Part 1 — Baseline Model (No Feature Engineering)
 
 ---
 
-## 🔍 What the Data Looked Like Before Modeling
+### Step 1 — Exploratory Data Analysis
 
-| Issue | Detail |
+We profiled every column before touching any model — checking distributions, value counts, and data quality.
+
+**Data quality checks:**
+
+| Check | Result |
 |---|---|
-| 🔎 Hidden missing values | `?` found in `workclass`, `occupation`, `native-country` — converted to `NaN` |
-| 📉 Outliers | `hours-per-week` (27.6%), `capital-gain` (8.3%), `capital-loss` (4.7%) |
-| ⚖️ Target imbalance | ~3.2:1 ratio — addressed with class weighting |
-| 🔁 Redundant features | `education` and `educational-num` encode the same information |
-| 🗑️ Non-predictive feature | `fnlwgt` is a census artifact with no real-world income signal |
+| Null values | None — dataset is complete |
+| Duplicate rows | **52 found and removed** |
+| Hidden missing values | `?` placeholder found in `workclass`, `occupation`, and `native-country` |
+
+We then plotted univariate distributions for every column to understand the shape of the data.
+
+<!-- IMAGE 2 -->
+> **Insert:** The `income` target distribution plot — shows the **class imbalance** (~76% earn `<=50K`, ~24% earn `>50K`)
+
+<!-- IMAGE 3 -->
+> **Insert:** 2–3 EDA univariate plots (e.g., `age` histogram, `education` bar chart, `occupation` bar chart) — shows the variety in how features are distributed
 
 ---
 
-## 🛠️ Feature Engineering
+### Step 2 — Preprocessing
 
-- **Log-transformed** `capital-gain` and `capital-loss` using `log1p` to handle heavy zero-skew
-- **Collapsed `native-country`** from 42 categories into a binary flag: `United-States` / `Non-US`
-- **Dropped `fnlwgt`** — a census sampling weight, not a personal attribute
-- **Dropped `education`** — fully redundant with `educational-num`
+We split the data using a **stratified 75/25 train-test split** to preserve the class ratio, then built a `ColumnTransformer` pipeline:
+
+```
+Numeric columns   → SimpleImputer (median strategy)
+Categorical columns → SimpleImputer (most_frequent) → OrdinalEncoder
+```
+
+`fnlwgt` was dropped — it is a census sampling weight with no predictive meaning for individual income.
 
 ---
 
-## 🤖 Models Trained
+### Step 3 — Train the Baseline Random Forest
 
-| Model | Notes |
+A **Random Forest Classifier** with default hyperparameters (`random_state=43`) was trained directly on the preprocessed features — no dimensionality reduction, no engineered features.
+
+**Baseline performance:**
+
+| Metric | Score |
 |---|---|
-| 📐 **Logistic Regression** | `max_iter=1000`, stratified 75/25 train-test split |
-| 🌲 **Random Forest** | `n_jobs=-1` for parallel training, `random_state=43` |
-
-Two separate preprocessing pipelines were used depending on model type:
-
-**For distance-based models (Logistic Regression):**
-Median imputation → StandardScaler for numerics; mode imputation → OneHotEncoder for categoricals.
-
-**For tree-based models (Random Forest):**
-Median imputation (no scaling needed); mode imputation → OrdinalEncoder for categoricals.
+| Accuracy | **0.86** |
+| Precision (`>50K`) | **0.76** |
+| Recall (`>50K`) | **0.63** |
+| F1-score (`>50K`) | **0.69** |
 
 ---
 
-## 🏆 Top Predictors (Permutation Importance)
+### Step 4 — Permutation Feature Importance
 
-Permutation importance was computed on the Random Forest test set over 10 repeats:
+We used **permutation importance** (10 repeats on the test set) to rank which features most affected the model's accuracy when shuffled.
 
-| Rank | Feature | Mean Accuracy Drop | What It Signals |
+<!-- IMAGE 4 -->
+> **Insert:** Horizontal bar chart — Top 10 features by permutation importance (Baseline Random Forest)
+
+**Why the top features make sense:**
+
+| Feature | Explanation |
+|---|---|
+| `capital-gain` | Investment income is strongly associated with higher overall wealth — by far the #1 signal |
+| `relationship` | Household role (e.g. "Husband") correlates with higher reported income in this dataset |
+| `marital-status` | Married individuals tend to have higher income — overlaps with relationship |
+| `educational-num` | Education directly reflects earning potential — every extra level raises income probability |
+| `occupation` | Professional and managerial roles command higher salaries |
+| `age` | Income generally rises with career experience through mid-life |
+
+---
+
+### Step 5 — Explanatory Visualizations
+
+We selected **`age`** and **`educational-num`** from the top 10 to visualize their relationship with the target — chosen because they are universally understood and tell the clearest story to a non-technical audience.
+
+<!-- IMAGE 5 -->
+> **Insert:** `age` vs `income` plot
+>
+> **Insight:** People in their **40s and 50s** are most likely to earn over $50K, with the proportion peaking around ages 45–55. Younger workers (under 30) and older retirees (over 65) are far less likely to fall in the higher bracket — confirming the classic mid-career earnings curve.
+
+<!-- IMAGE 6 -->
+> **Insert:** `educational-num` vs `income` plot
+>
+> **Insight:** Below education level 12 (high school diploma), almost nobody earns over $50K. Starting at level 13 (Bachelor's degree), the proportion earning over $50K jumps sharply — reaching nearly **75% at the highest levels** (Master's and Doctorate). Education is one of the most consistent and explainable predictors in the dataset.
+
+---
+
+## Part 2 — Feature Engineering
+
+---
+
+### Step 6 — Apply PCA
+
+After the baseline, we tested whether adding **principal components** as new features could capture latent structure the model was missing.
+
+**Pipeline:**
+```
+Numeric  → SimpleImputer (median) → StandardScaler
+Categorical → SimpleImputer (most_frequent) → OrdinalEncoder
+→ PCA (3 components)
+→ Concatenate: original 13 features + 3 PCs = 16 features total
+```
+
+We fitted PCA on the training data only, then transformed both train and test to avoid leakage.
+
+**Result:**
+
+| Metric | Baseline | PCA + Original |
+|---|---|---|
+| Accuracy | **0.86** | 0.86 |
+| Precision (`>50K`) | **0.76** | 0.74 |
+| Recall (`>50K`) | **0.63** | 0.62 |
+| F1-score (`>50K`) | **0.69** | 0.68 |
+
+Adding PCA components **did not improve** the model. The principal components captured compressed, blended information that the Random Forest was already extracting more precisely from the original features directly.
+
+---
+
+### Step 7 — Apply Variance Threshold Feature Selection
+
+We applied `VarianceThreshold(threshold=0.1)` to the 16-feature set (original 13 + 3 PCs) to filter out any near-zero-variance features.
+
+```
+Features before filtering: 16
+Features after filtering:   16
+```
+
+All 16 features exceeded the variance threshold — none were redundant enough to remove. This confirms the dataset's features each carry meaningful signal.
+
+---
+
+### Step 8 — Final Model Comparison
+
+<!-- IMAGE 7 -->
+> **Insert:** The model comparison table as a styled image, or keep the markdown table below
+
+| Metric | Baseline | PCA + Original | After Feature Selection |
 |---|---|---|---|
-| 🥇 1 | `capital-gain` | ~0.048 | Access to investment markets |
-| 🥈 2 | `educational-num` | ~0.029 | Long-term earning potential |
-| 🥉 3 | `relationship` | — | Household structure & dual incomes |
-| 4 | `occupation` | — | Job type and sector |
-| 5 | `hours-per-week` | — | Work intensity |
+| Accuracy | **0.86** | 0.86 | 0.86 |
+| Precision (`>50K`) | **0.76** | 0.74 | 0.74 |
+| Recall (`>50K`) | **0.63** | 0.62 | 0.62 |
+| F1-score (`>50K`) | **0.69** | 0.68 | 0.68 |
+
+<!-- IMAGE 8 -->
+> **Insert:** Horizontal bar chart — Top 10 features by permutation importance (Feature Selection model)
+>
+> **Notable shift:** `age` jumped from #4 to #1, while `capital-gain` dropped from #1 to #3, and `relationship` fell from #2 to #10. Despite these rank changes, performance did not improve.
 
 ---
 
-## 🛠️ Tools Used
+## Conclusions
 
-- **Python** — the programming language
-- **Pandas & NumPy** — for data manipulation
-- **Matplotlib & Seaborn** — for charts and visualizations
-- **Scikit-learn** — for preprocessing, pipelines, and modeling
-- **imbalanced-learn** — for pipeline support with imbalanced datasets
-- **my_utils** *(local)* — custom profiling and plotting utilities
+**The baseline model is the best performer across all metrics.** Feature engineering via PCA and Variance Threshold did not improve — and marginally hurt — the model.
+
+| Question | Answer |
+|---|---|
+| Best model | Baseline Random Forest (no engineering) |
+| Most important feature (baseline) | `capital-gain` |
+| Most important feature (after PCA) | `age` |
+| Did PCA help? | No — introduced redundant compressed information |
+| Did Variance Threshold help? | No — removed zero features, identical result |
+| Core takeaway | Random Forests already learn the best splits from raw features; compressing them via PCA removes the fine-grained signal trees rely on |
 
 ---
 
-## 📁 File Structure
+## Why Feature Engineering Failed Here
+
+This is an important result, not a failure of process. Random Forests are **inherently non-linear** and **feature-selective** — they build hundreds of trees, each sampling random subsets of features and finding the most informative splits. Adding PCA components gives the model blended, rotated versions of features it already has direct access to. The trees gain nothing and lose resolution.
+
+Variance Threshold confirmed there were no low-signal features to discard — every feature carries enough variance to be useful. In a dataset this clean and well-structured, the best move is to trust the baseline.
+
+---
+
+## Tech Stack
+
+| Tool | Purpose |
+|---|---|
+| `pandas` / `numpy` | Data manipulation |
+| `seaborn` / `matplotlib` | Visualization |
+| `scikit-learn` | Modeling, preprocessing, evaluation, PCA, feature selection |
+| `imbalanced-learn` | Pipeline compatibility |
+| `my_utils` (local) | Custom profiling and plotting utilities |
+
+---
+
+## How to Run
+
+1. Place `adult-income.csv` in the same directory as the notebook.
+2. Ensure `my_utils.py` is one level up (`../my_utils.py`).
+3. Install dependencies:
+
+```bash
+pip install numpy pandas seaborn matplotlib scikit-learn imbalanced-learn
+```
+
+4. Open `adult-income copy.ipynb` and run all cells top to bottom.
+
+---
+
+## Project Structure
 
 ```
-📦 project
- ┣ 📓 adult-income-prediction.ipynb   ← the full analysis notebook
- ┣ 📄 adult-income.csv                ← census dataset
- ┗ 📄 README.md                       ← you are here
+adult-income/
+├── adult-income.csv              # Raw dataset (UCI Adult Income)
+├── adult-income copy.ipynb       # Full analysis notebook (Parts 1 & 2)
+└── README.md                     # This file
 ```
-
----
-
-## 📌 Business Takeaway
-
-The model reveals that income inequality in this dataset is driven by factors that are both measurable and interpretable:
-
-- 📈 **Capital gains** reflect access to investment markets — a privilege concentrated in higher income brackets
-- 🎓 **Education** reflects long-term earning potential — each additional year of schooling correlates with higher pay
-
-These aren't surprises. But having a model that *quantifies and ranks* them gives decision-makers a data-backed foundation for policies around education access, tax structure, and income support programs.
-
-*Built as part of an income classification exercise. The goal: turn raw census data into an explainable, trustworthy prediction model.* 🚀
