@@ -2,7 +2,7 @@
 
 # 🎓 Student Success
 
-### 🧩 Clustering & 🤖 Predictive Modeling of Online Learners
+### Clustering & Predictive Modeling of Online Learners
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
@@ -75,19 +75,21 @@ Before any modeling, every feature was inspected. The headline news is that **th
 **What the simple analysis actually told us:**
 
 <div align="center">
-  <img src="readme_assets/eda_pass_fail.png" width="540" alt="Pass/fail distribution">
+  <img width="790" height="390" alt="pass_fail" src="https://github.com/user-attachments/assets/5116df2d-ae82-4891-8a78-9775633a53ea" />
 </div>
 
 > **🔑 Outcome — class imbalance.** Roughly **76% of students passed** and **24% failed**. This single chart is the most consequential EDA finding: it warns us up front that the prediction model (Part 2) will face an **imbalanced target**, which later justifies watching *recall* closely and testing SMOTE.
 
 <div align="center">
-  <img src="readme_assets/eda_studied_credits.png" width="540" alt="Studied credits distribution">
+  <img width="790" height="390" alt="output" src="https://github.com/user-attachments/assets/63755dbc-9313-459b-90f7-b9ef5ec5d1f4" />
+
 </div>
 
 > **🔑 Outcome — study load is skewed.** Most students cluster around a **light credit load (~60)**, with a long tail of heavily-loaded students. That spread turns out to be the *defining* axis separating the two clusters later on.
 
 <div align="center">
-  <img src="readme_assets/eda_assess_score.png" width="540" alt="Assessment score distribution">
+  <img width="790" height="389" alt="output" src="https://github.com/user-attachments/assets/6fd93ff6-6871-4f7f-b1ed-aec863f89929" />
+
 </div>
 
 > **🔑 Outcome — assessment scores carry the signal.** Scores spread widely across the population — the richest, most discriminating feature group, and exactly what KMeans latches onto.
@@ -99,7 +101,7 @@ Before any modeling, every feature was inspected. The headline news is that **th
 Numeric features were **standardized** (so no single feature dominates the distance math), then KMeans was fitted for **k = 2 … 10**. Two diagnostics were used **together**:
 
 <div align="center">
-  <img src="readme_assets/elbow_silhouette.png" width="680" alt="Elbow plot and silhouette score">
+  <img width="1189" height="490" alt="output" src="https://github.com/user-attachments/assets/3e5674f1-fa0a-4a4d-9739-672bd18cc7ea" />
 </div>
 
 > [!TIP]
@@ -114,7 +116,7 @@ Numeric features were **standardized** (so no single feature dominates the dista
 This is where the two groups reveal their personalities. 🔥
 
 <div align="center">
-  <img src="readme_assets/cluster_heatmap.png" width="660" alt="Heatmap of average feature values per cluster">
+  <img width="1056" height="390" alt="output" src="https://github.com/user-attachments/assets/c355844f-9fa1-46c4-910c-1d535530444b" />
 </div>
 
 **Cluster 0 scored higher on *all five* assessments** than Cluster 1. The most revealing contrast is **study load vs. performance**:
@@ -132,7 +134,7 @@ This is where the two groups reveal their personalities. 🔥
 ### 4️⃣ Categorical Features by Cluster
 
 <div align="center">
-  <img src="readme_assets/cluster_stacked_bar.png" width="720" alt="Stacked bar charts of categorical features by cluster">
+ <img width="1789" height="990" alt="image" src="https://github.com/user-attachments/assets/15511a56-b9d8-4907-ae1c-a7b4064297a0" />
 </div>
 
 > [!NOTE]
@@ -147,7 +149,7 @@ This is where the two groups reveal their personalities. 🔥
 ### 5️⃣ Numerical Features by Cluster
 
 <div align="center">
-  <img src="readme_assets/cluster_violin.png" width="720" alt="Violin plots of numerical features by cluster">
+  <img width="1989" height="990" alt="image" src="https://github.com/user-attachments/assets/9c03e54d-8dbd-425d-8486-2d7851c8c318" />
 </div>
 
 The violins show **both the level and the consistency** of each group:
@@ -181,10 +183,10 @@ Part 2 follows the same logic, but the punchline is simpler: **several models we
 | **3️⃣ + EarlyStopping** | Dropout **+** EarlyStopping | 🟢 **Best balance — chosen as final** |
 
 <div align="center">
-  <img src="readme_assets/model1_history.png" width="440" alt="Model 1 history">
+  <img width="1189" height="989" alt="image" src="https://github.com/user-attachments/assets/85daa903-ef3b-4fdf-a754-ebbfa316fdb0" />
   <br><em>Model 1 — textbook overfitting</em>
   <br><br>
-  <img src="readme_assets/model3_history.png" width="440" alt="Model 3 history">
+  <img width="1189" height="989" alt="image" src="https://github.com/user-attachments/assets/fb371aa5-c1b7-4248-ac09-e1bc096bf3c8" />
   <br><em>Model 3 — EarlyStopping closes the gap (final model)</em>
 </div>
 
